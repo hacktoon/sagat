@@ -10,39 +10,39 @@ class Response:
 
 
 class Request:
+    service: 'Service'
     '''
     - implements a service request lifecycle with special methods
     - store state of a service request
     - emits a Response object
     '''
-    def __init__(self, service=None):
+
+    @classmethod
+    def send(cls, service, *args, **kwargs) -> Response:
+        request = cls(service)
+        value = request._run(*args, **kwargs)
+        return Response(request, value)
+
+    def __init__(self, service):
         self.service = service
 
-    def __call__(self, *args, **kwargs):
-        client_response = self.__call_run(*args, **kwargs)
-        if self.is_valid(client_response):
-            self.on_success(client_response)
+    def _run(self, *args, **kwargs) -> Response:
+        response = self._run_client(*args, **kwargs)
+        if self.is_valid(response):
+            self.on_success(response)
         else:
-            self.on_error(client_response)
-        return client_response
+            self.on_error(response)
+        return response
 
-    def __call__(self, *args, **kwargs):
-        client_response = self.__call_run(*args, **kwargs)
-        if self.is_valid(client_response):
-            self.on_success(client_response)
-        else:
-            self.on_error(client_response)
-        return client_response
-
-    def __call_run(self, *args, **kwargs):
+    def _run_client(self, *args, **kwargs):
         try:
             return self.run(*args, **kwargs)
         except TypeError as e:
             print(e)
             return
 
-    def run(self, *args, **kwargs):
-        raise NotImplementedError
+    def run(self, *args, **kwargs) -> Response:
+        return
 
     def is_valid(self, result) -> bool:
         return bool(result)
@@ -57,31 +57,33 @@ class Request:
 class Service:
     '''
     Store state for a service, ex: session, header, client, etc
-    - configuration
-    - state
+    Offer costly response cache
+    - service configuration
+    - service state
+    - response cache
     '''
 
-    def __init__(self, name: str) -> None:
+    def __init__(self, name: str, config: dict = None) -> None:
         self.name = name
-        for name, _Request in self.__annotations__.items():
-            request = _Request(service=self)
-            setattr(self, name, request)
+        self.config = config
 
 ######################################
 
 class GetPokemon(Request):
-    def run(self, name: str):
+    def run(self, name: str) -> Response:
         return {'name': name}
 
 
 class PokeAPI(Service):
-    def get_pokemon(self, name: str):
-        return GetPokemon(name)
+    def get_pokemon(self, name: str) -> Response:
+        # handle endpoint params here
+        # maybe async / await
+        return GetPokemon.send(self, name)
 
 
 svc = PokeAPI('etc')
-print(svc.get_pokemon('ditto'))
-svc.get_pokemon()
+response = svc.get_pokemon('ditto')
+print(response.value)
 
 
 '''
