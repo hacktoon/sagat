@@ -4,18 +4,18 @@ from typing import Any
 
 
 class Response:
-    def __init__(self, request: 'Request', value: Any) -> None:
+    def __init__(self, request: "Request" = None, value: Any = None) -> None:
         self.request = request
         self.value = value
 
 
 class Request:
-    service: 'Service'
-    '''
+    service: "Service"
+    """
     - implements a service request lifecycle with special methods
     - store state of a service request
     - emits a Response object
-    '''
+    """
 
     @classmethod
     def send(cls, service, *args, **kwargs) -> Response:
@@ -62,36 +62,38 @@ class Request:
             return
 
     def run(self, *args, **kwargs) -> Response:
-        return
+        return Response()
 
     def is_valid(self, result) -> bool:
         return bool(result)
 
     def on_success(self, result):
-        return
+        return result
 
     def on_error(self, result):
-        return
+        return result
 
 
 class Service:
-    '''
+    """
     Store state for a service, ex: session, header, client, etc
     Offer costly response cache
     - service configuration
     - service state
     - response cache
-    '''
+    """
 
     def __init__(self, name: str, config: dict = None) -> None:
         self.name = name
         self.config = config
 
+
 ######################################
+
 
 class GetPokemon(Request):
     def run(self, name: str) -> Response:
-        return {'name': name}
+        return {"name": name}
 
 
 class PokeAPI(Service):
@@ -101,12 +103,12 @@ class PokeAPI(Service):
         return GetPokemon.send(self, name)
 
 
-svc = PokeAPI('etc')
-response = svc.get_pokemon('ditto')
+svc = PokeAPI("etc")
+response = svc.get_pokemon("ditto")
 print(response.value)
 
 
-'''
+"""
 saga
     1.  certificates = db.get_certificates(args)
     2.  domains = certificates.filter()
@@ -115,4 +117,4 @@ saga
 service
     pokeapi.get_pokemon()
 
-'''
+"""
