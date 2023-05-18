@@ -1,5 +1,3 @@
-
-
 class Service:
     """
     Store state for a service, ex: session, header, client, etc

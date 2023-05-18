@@ -1,32 +1,37 @@
-from saga import Saga, SagaResponse
+from typing import Any
+
+from saga import Saga
 from service import Service
 from request import Request, Response
 
 
-######################################
+class GetPokemonRequest(Request):
+    def run(self, name: str) -> Any:
+        return {"name": f"{name}"}
 
+    def is_valid(self, result) -> bool:
+        return len(result["name"]) > 3
 
-class GetPokemon(Request):
-    def run(self, name: str) -> Response:
-        return {"name": name}
+    def on_success(self, result):
+        print(f"OK {result}")
+        return result
+
+    def on_error(self, result):
+        print("Erro ", result)
+        return result
 
 
 class PokeAPI(Service):
     def get_pokemon(self, name: str) -> Response:
-        # handle endpoint params here
-        # maybe async / await
-        return GetPokemon.send(self, name)
+        return GetPokemonRequest.init(self, name)
 
 
-class ServiceMap:
+class GetPokemonSaga(Saga):
     pokeapi = PokeAPI("Pokemon API")
 
-
-class PokeSaga(Saga):
-    def run(self, name: str) -> 'SagaResponse':
+    def run(self, name: str) -> Response:
         return self.pokeapi.get_pokemon(name)
 
 
-
-pokesaga = PokeSaga()
-print(pokesaga.run('ditto').value)
+saga = GetPokemonSaga()
+saga.run('ditto')

@@ -6,7 +6,7 @@ class Saga:
         self.name = name
         self.config = config
 
-    def run(self, *args, **kwargs) -> 'SagaResponse':
+    def run(self, *args, **kwargs) -> "SagaResponse":
         return SagaResponse()
 
 
