@@ -10,12 +10,13 @@ class Response:
 
 
 class Request:
-    service: "Service"
     """
     - implements a service request lifecycle with special methods
     - store state of a service request
     - emits a Response object
     """
+
+    service: "Service"
 
     @classmethod
     def send(cls, service, *args, **kwargs) -> Response:
