@@ -27,17 +27,37 @@ class Request:
         self.service = service
 
     def _run(self, *args, **kwargs) -> Response:
-        response = self._run_client(*args, **kwargs)
-        if self.is_valid(response):
-            self.on_success(response)
+        response = self._client_run(*args, **kwargs)
+        if self._client_is_valid(response):
+            self._client_on_success(response)
         else:
             self.on_error(response)
         return response
 
-    def _run_client(self, *args, **kwargs):
+    def _client_run(self, *args, **kwargs):
         try:
             return self.run(*args, **kwargs)
-        except TypeError as e:
+        except Exception as e:
+            print(e)
+            return
+
+    def _client_is_valid(self, result) -> bool:
+        try:
+            return bool(self.is_valid(result))
+        except Exception as e:
+            return False
+
+    def _client_on_success(self, result):
+        try:
+            return self.on_success(result)
+        except Exception as e:
+            print(e)
+            return
+
+    def _client_on_error(self, result):
+        try:
+            return self.on_error(result)
+        except Exception as e:
             print(e)
             return
 
