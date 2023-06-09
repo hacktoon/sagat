@@ -1,11 +1,8 @@
 from typing import Any
-from service import Service
+
+from .response import Response
 
 
-class Response:
-    def __init__(self, value: Any = None, request: "Request" = None) -> None:
-        self.value = value
-        self.request = request
 
 
 class Request:
@@ -15,25 +12,16 @@ class Request:
     - emits a Response object
     """
 
-    service: Service
-
-    @classmethod
-    def init(cls, service, *args, **kwargs) -> Response:
-        request = cls(service)
-        value = request._run(*args, **kwargs)
-        return Response(request, value)
-
-    def __init__(self, service):
-        self.service = service
-
     # INTERNAL METHODS ===========================
     def _run(self, *args, **kwargs) -> Response:
         result = self._client_run(*args, **kwargs)
+        status = False
         if self._client_is_valid(result):
             result = self._client_on_success(result)
+            status = True
         else:
             result = self._client_on_error(result)
-        return Response(self.service, result)
+        return Response(status, result)
 
     def _client_run(self, *args, **kwargs) -> Any:
         try:
