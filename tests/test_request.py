@@ -1,9 +1,6 @@
-from types import SimpleNamespace
-from typing import Callable, ParamSpecArgs
+import logging
 
 from saga import Service, Request, Response
-
-
 
 
 class GetItem(Request):
@@ -12,29 +9,27 @@ class GetItem(Request):
 
 class GetPokemon(Request):
     def run(self, name: str) -> Response:
-        return {"name": f"{name}"}
+        return {"name": name}
 
     def validate(self, value) -> bool:
         return len(value["name"]) > 3
 
     def success(self, value):
-        print(f"OK {value}")
+        logging.info(f"OK {value}")
         return value
 
     def error(self, value):
-        print("Erro ", value)
+        logging.error(f"Error: {value}")
         return value
 
 
 class PokeAPI(Service):
-    name: str = 'PokeAPI'
-
-    def get_pokemon(self, name: str) -> Response[GetPokemon]: ...
-    def get_item(self, name: str) -> Response[GetItem]: ...
+    #  method signatures are optional but useful for IDE autocompletion
+    def get_pokemon(self, name: str) -> Response: ...
+    def get_item(self, name: str) -> Response: ...
 
 
 def test_request():
     pokeapi = PokeAPI()
-    # breakpoint()
-    resp = pokeapi.get_pokemon('ditto')
-    assert resp.value == {"name": "ditto"}
+    ditto = pokeapi.get_pokemon("ditto")
+    assert ditto["name"] == "ditto"
