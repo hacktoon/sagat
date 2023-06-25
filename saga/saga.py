@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Callable
 
 
 class Saga:
@@ -13,3 +13,11 @@ class Saga:
 class SagaResponse:
     def __init__(self, value: Any = None) -> None:
         self.value = value
+
+
+def service(ServiceClass):
+    return ServiceClass
+
+
+def request(_request: Callable) -> Callable:
+    return _request
