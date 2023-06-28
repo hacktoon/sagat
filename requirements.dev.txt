@@ -2,3 +2,4 @@ pytest
 ipdb
 ipython
 black
+flake8

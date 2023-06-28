@@ -1,6 +1,8 @@
 import logging
 from io import StringIO
-from saga import formatter
+
+DATE_FMT = "%Y-%m-%d %H:%M:%S"
+
 
 class Log:
     def __init__(self, runtime, traceid, log_level):
@@ -49,3 +51,14 @@ class Log:
 
     def _fmt_error(self, message):
         return f'{message} {self.runtime.result}'
+
+
+def formatter(runtime, traceid):
+    formatter_obj = logging.Formatter(
+        datefmt=DATE_FMT,
+        fmt=(
+            f'%(asctime)s loglevel="%(levelname)s" task="{runtime.name}"'
+            f' message="%(message)s" traceid="{traceid}"'
+        )
+    )
+    return formatter_obj
